@@ -1,17 +1,26 @@
-name: Build Android APK
+name: Build & Publish Release APK
+
 on:
   push:
-    tags: ["v*"]  # 推送标签时触发
+    tags:
+      - '*'
+
 jobs:
-  build:
+  Gradle:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2  # 拉取代码
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with: java-version: 11
-      - run: chmod +x ./gradlew  # 赋予执行权限
-      - run: ./gradlew assembleRelease  # 构建 Release APK
-      - name: Upload APK
-        uses: actions/upload-artifact@v2
-        with: path: app/build/outputs/apk/release/
+    - name: checkout code
+      uses: actions/checkout@v2
+    - name: setup jdk
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Make Gradle executable
+      run: chmod +x ./gradlew
+    - name: Build Release APK
+      run: ./gradlew assembleRelease
+    - name: Releasing using Hub
+      uses: sangatdesai/release-apk@main
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        APP_FOLDER: app
